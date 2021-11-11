@@ -1,0 +1,29 @@
+version: '3'
+services:
+  reverse-proxy:
+    image: traefik:v2.5
+    command: --api.insecure=true --providers.docker
+    ports:
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - app
+
+  golang-hits:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    labels:
+      - traefik.http.routers.golang-hits.rule=Host(`localhost`)
+    environment:
+      - HTTP_PORT=80
+    networks: 
+      - app
+
+networks:
+  app:
+
+
